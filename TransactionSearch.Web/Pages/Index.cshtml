@@ -1,0 +1,74 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Search";
+}
+
+<div>
+    <h1 class="display-4">Search</h1>
+    <form method="post">
+        Block Number:<input asp-for="SearchRequest.BlockNumber" />
+        Address: <input asp-for="SearchRequest.Address" />
+        <input type="submit" />
+    </form>
+    @if (Model.TransactionResponse?.Data != null)
+    {
+        var data = Model.TransactionResponse?.Data;
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        BlockHash
+                    </th>
+                    <th>
+                        BlockNumber
+                    </th>
+                    <th>
+                        Gas
+                    </th>
+                    <th>
+                        Hash
+                    </th>
+                    <th>
+                        From
+                    </th>
+                    <th>
+                        To
+                    </th>
+                    <th>
+                        Value
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in data)
+                {
+                    <tr>
+                        <td>
+                            <a href="https://etherscan.io/tx/@item.BlockHash" target="_blank">@item.BlockHash</a>
+                        </td>
+                        <td>
+                            <a href="https://etherscan.io/txs?block=@item.BlockNumber" target="_blank">@item.BlockNumber</a>
+                        </td>
+                        <td>
+                            @item.Gas
+                        </td>
+                        <td>
+                            <a href="https://etherscan.io/tx/@item.Hash" target="_blank">@item.Hash</a>
+                        </td>
+                        <td>
+                            <a href="https://etherscan.io/address/@item.From" target="_blank">@item.From</a>
+                        </td>
+                        <td>
+                            <a href="https://etherscan.io/address/@item.To" target="_blank">@item.To</a>
+                        </td>
+                        <td>
+                            @item.Value Ether
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</div>
