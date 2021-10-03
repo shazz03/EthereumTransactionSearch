@@ -5,10 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using TransactionSearch.Core.Configuration;
 using TransactionSearch.Core.Extensions;
-using TransactionSearch.Core.Infrastructure;
 using TransactionSearch.Core.Services;
 
 namespace TransactionSearch.Web
@@ -31,7 +29,6 @@ namespace TransactionSearch.Web
             var config = builder.Build();
 
             services.Configure<InfuraApiConfig>(config.GetSection("InfuraApi"));
-            services.AddScoped<IPolicyHolder, PolicyHolder>();
             services.AddScoped<ITransactionSearchService, InfuraTransactionSearchService>();
             services.AddScoped<EthereumHexParser>();
 

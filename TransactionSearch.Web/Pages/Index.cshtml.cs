@@ -12,12 +12,10 @@ namespace TransactionSearch.Web.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
         private readonly ITransactionSearchService _transactionSearch;
 
-        public IndexModel(ILogger<IndexModel> logger, ITransactionSearchService transactionSearch)
+        public IndexModel(ITransactionSearchService transactionSearch)
         {
-            _logger = logger;
             _transactionSearch = transactionSearch;
         }
         public IActionResult OnGet()

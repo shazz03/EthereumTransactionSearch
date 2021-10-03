@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,21 +8,18 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using TransactionSearch.Core.Configuration;
 using TransactionSearch.Core.Extensions;
-using TransactionSearch.Core.Infrastructure;
 using TransactionSearch.Core.Models;
 
 namespace TransactionSearch.Core.Services
 {
     public class InfuraTransactionSearchService : ITransactionSearchService
     {
-        private readonly IPolicyHolder _policyHolder;
         private readonly IHttpClientFactory _clientFactory;
         private readonly InfuraApiConfig _apiConfig;
         private readonly EthereumHexParser _parser;
 
-        public InfuraTransactionSearchService(IPolicyHolder policyHolder, IHttpClientFactory clientFactory, IOptions<InfuraApiConfig> apiConfig, EthereumHexParser parser)
+        public InfuraTransactionSearchService(IHttpClientFactory clientFactory, IOptions<InfuraApiConfig> apiConfig, EthereumHexParser parser)
         {
-            _policyHolder = policyHolder;
             _clientFactory = clientFactory;
             _parser = parser;
             _apiConfig = apiConfig?.Value;
@@ -45,10 +43,15 @@ namespace TransactionSearch.Core.Services
                 Id = request.BlockNumber,
                 Params = new List<object> { "latest", true }
             };
-            var json = new StringContent(JsonSerializer.Serialize(model));
-            var responseMessage =
-               await _policyHolder.GetRetryPolicy(_apiConfig.RetryAttempt, _apiConfig.WaitBeforeRetryAttemptSecond)
-                   .ExecuteAsync(async () => await httpClient.PostAsync($"{_apiConfig.BaseUrl}{_apiConfig.ProjectId}", json));
+
+            var httpRequest = new HttpRequestMessage
+            {
+                RequestUri = new Uri($"{_apiConfig.BaseUrl}{_apiConfig.ProjectId}"),
+                Content = new StringContent(JsonSerializer.Serialize(model)),
+                Method = HttpMethod.Post
+            };
+
+            var responseMessage = await httpClient.SendAsync(httpRequest);
 
             responseMessage.EnsureSuccessStatusCode();
             var content = await responseMessage.Content.ReadAsStringAsync();
@@ -61,7 +64,7 @@ namespace TransactionSearch.Core.Services
                     BlockHash = d.BlockHash,
                     From = d.From,
                     To = d.To,
-                    Gas = _parser.ParseGasValue(d.Gas),
+                    Gas = _parser.ParseGasValue(d.GasPrice),
                     Hash = d.Hash,
                     Value = _parser.ParseAmountValue(d.Value)
                 }).ToList();
@@ -77,7 +80,7 @@ namespace TransactionSearch.Core.Services
                 StatusCode = HttpStatusCode.OK
             };
         }
-        
+
         private static bool Validate(SearchRequest request)
         {
             if (request == null)
