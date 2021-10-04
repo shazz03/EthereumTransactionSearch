@@ -29,9 +29,6 @@ namespace TransactionSearch.Core.Extensions
             return result;
         }
 
-
-
-
         public double ParseBlockNumber(string hexNumber)
         {
             if (string.IsNullOrWhiteSpace(hexNumber) || hexNumber == "0x0")

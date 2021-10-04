@@ -69,16 +69,23 @@ namespace TransactionSearch.Core.Services
                     Value = _parser.ParseAmountValue(d.Value)
                 }).ToList();
 
-            if (!string.IsNullOrWhiteSpace(request.Address))
-            {
-                txnData = txnData?.Where(j => j.From.Equals(request.Address)).ToList();
-            }
+            txnData = FilterTransactions(request, txnData);
 
             return new TransactionResponseDto
             {
                 Data = txnData,
                 StatusCode = HttpStatusCode.OK
             };
+        }
+
+        private static List<TransactionData> FilterTransactions(SearchRequest request, List<TransactionData> txnData)
+        {
+            if (!string.IsNullOrWhiteSpace(request.Address))
+            {
+                txnData = txnData?.Where(j => j.From.Equals(request.Address)).ToList();
+            }
+
+            return txnData;
         }
 
         private static bool Validate(SearchRequest request)
